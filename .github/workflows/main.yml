@@ -1,0 +1,56 @@
+name: Configure container insights to get metrics
+
+on:
+ workflow_dispatch: 
+   
+jobs:
+  start:
+    name: ✅ Start provisioning container insights
+    runs-on: ubuntu-latest
+    continue-on-error: false  
+
+    steps:
+      
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+        with:
+            ref: feature/kube-cluster-creation
+            path: kube
+     
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+            terraform_version: 1.2.7
+            cli_config_credentials_token: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESSKEYID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: eu-central-1
+
+      - name: Configure kube config to run kubectl commands
+        run: aws eks update-kubeconfig --region eu-central-1 --name devOps-cluster
+
+      - name: Configure cloud insights namespace for scraping metrics
+        run: kubectl apply -f https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/cloudwatch-namespace.yaml
+
+      - name: Configure service account for cloud insights 
+        run: kubectl apply -f https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/cwagent/cwagent-serviceaccount.yaml
+
+      - name: Create configmap for cloudwatch agent
+        run: |
+           curl -O https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/cwagent/cwagent-configmap.yaml
+           sed -i s/'{{cluster-name}}'/${{ secrets.AWS_ACCESS_KEY_ID }}/ cwagent-configmap.yaml
+           cat cwagent-configmap.yaml
+           kubectl apply -f cwagent-daemonset.yaml
+      
+      - name: Create DaemonSet for container insights
+        run: kubectl apply -f https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/cwagent/cwagent-daemonset.yaml
+
+      - name: List pods in amazon-cloudwatch
+        run: kubectl get pods -n amazon-cloudwatch
+
+
+  

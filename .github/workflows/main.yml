@@ -10,18 +10,6 @@ jobs:
     continue-on-error: false  
 
     steps:
-      
-      - name: Checkout Repo
-        uses: actions/checkout@v2
-        with:
-            ref: feature/kube-cluster-creation
-            path: kube
-     
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
-        with:
-            terraform_version: 1.2.7
-            cli_config_credentials_token: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1

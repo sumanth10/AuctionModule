@@ -34,7 +34,7 @@ jobs:
             aws-region: eu-central-1
 
       - name: Configure kube config to run kubectl commands
-        run: aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.AWS_CLUSTER }
+        run: aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.AWS_CLUSTER }}
 
       - name: Configure cloud insights namespace for scraping metrics
         run: kubectl apply -f https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/cloudwatch-namespace.yaml

@@ -2,6 +2,10 @@ name: Configure container insights to get metrics
 
 on:
  workflow_dispatch: 
+ 
+env:
+ AWS_CLUSTER: devOps-cluster
+ AWS_REGION: eu-central-1
    
 jobs:
   start:
@@ -19,7 +23,7 @@ jobs:
             aws-region: eu-central-1
 
       - name: Configure kube config to run kubectl commands
-        run: aws eks update-kubeconfig --region eu-central-1 --name devOps-cluster
+        run: aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name devOps-cluster
 
       - name: Configure cloud insights namespace for scraping metrics
         run: kubectl apply -f https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/cloudwatch-namespace.yaml
@@ -30,9 +34,9 @@ jobs:
       - name: Create configmap for cloudwatch agent
         run: |
            curl -O https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/cwagent/cwagent-configmap.yaml
-           sed -i s/'{{cluster-name}}'/${{ secrets.AWS_ACCESS_KEY_ID }}/ cwagent-configmap.yaml
+           sed -i s/'{{cluster-name}}'/$(echo ${{ env.AWS_CLUSTER }})/ cwagent-configmap.yaml
            cat cwagent-configmap.yaml
-           kubectl apply -f cwagent-daemonset.yaml
+           kubectl apply -f cwagent-configmap.yaml
       
       - name: Create DaemonSet for container insights
         run: kubectl apply -f https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/cwagent/cwagent-daemonset.yaml

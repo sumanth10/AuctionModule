@@ -19,11 +19,11 @@ jobs:
         uses: actions/checkout@v2
         with:
             ref: feature/cloudwatch
-            path: cloudwatch/cloudwatch
+            path: cloudwatch
       
       - name: Change directory to dev
         run: |
-              cd cloudwatch
+              cd cloudwatch/cloudwatch
               ls -ltr
      
       - name: Configure AWS Credentials

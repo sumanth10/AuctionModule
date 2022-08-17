@@ -34,7 +34,7 @@ jobs:
       - name: Create configmap for cloudwatch agent
         run: |
            curl -O https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/cwagent/cwagent-configmap.yaml
-           sed -i s/'{{cluster-name}}'/$(echo ${{ env.AWS_CLUSTER }})/ cwagent-configmap.yaml
+           sed -i s/"{{cluster-name}}"/$(echo ${{ env.AWS_CLUSTER }})/ cwagent-configmap.yaml
            cat cwagent-configmap.yaml
            kubectl apply -f cwagent-configmap.yaml
       

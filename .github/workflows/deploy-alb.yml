@@ -52,9 +52,10 @@ jobs:
       - name: Update the poilcy file and create IAM role
         run: |
             cd alb/alb
+            oidc=`cat oidc.txt` 
             sed -i s/'{{region-code}}'/${{ env.AWS_REGION }}/g ./load-balancer-role-trust-policy.json
             sed -i s/'{{accountID}}'/${{ secrets.AWS_ACCESSKEYID }}/g ./load-balancer-role-trust-policy.json
-            sed -i s/'{{oidc}}'/r oidc.txt/ ./load-balancer-role-trust-policy.json
+            sed -i s/'{{oidc}}'/$(echo $oidc)/ ./load-balancer-role-trust-policy.json
             cat 
       - name: Create IAM role and attach
         run: |

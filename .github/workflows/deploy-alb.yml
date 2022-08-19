@@ -83,8 +83,8 @@ jobs:
           --set clusterName=${{ env.AWS_CLUSTER }} \
           --set serviceAccount.create=false \
           --set serviceAccount.name=aws-load-balancer-controller\
-          --set region=${{ env.AWS_REGION }}\
-          --set vpcId=$(echo $vpcid)
+          --set region=${{ env.AWS_REGION }} \
+          --set vpcId=$vpcid
      
       - name: List thw aws loadbalancer
         run: |

@@ -87,7 +87,16 @@ jobs:
         run: |
          kubectl get deployment -n kube-system aws-load-balancer-controller
          
-      - name: Cleanup on failure
+      - name: Detach policy from a role
+        if: failure() && steps.createiamalb.outcome == 'success'
+        run: |
+          aws iam detach-role-policy --role-name AmazonEKSLoadBalancerControllerRole --policy-arn arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:policy/AWSLoadBalancerControllerIAMPolicy
+         
+      - name: Delete the policy
         if: failure()
         run: |
           aws iam delete-policy --policy-arn arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:policy/AWSLoadBalancerControllerIAMPolicy
+      
+     
+          
+          

@@ -47,7 +47,7 @@ jobs:
             --policy-document file://iam_policy.json
      
       - name: IAM OIDC provider for the cluster
-        run: aws eks describe-cluster --name devOps-cluster --query "cluster.identity.oidc" --output text | awk -F/ '{ print $5 }'  > oidc.txt
+        run: aws eks describe-cluster --name devOps-cluster --query "cluster.identity.oidc" --output text | awk -F/ '{ print $5 }'  > alb/alb/oidc.txt
 
       - name: Update the poilcy file and create IAM role
         run: |

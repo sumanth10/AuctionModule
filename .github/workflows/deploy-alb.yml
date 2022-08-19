@@ -38,12 +38,14 @@ jobs:
         run: aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.AWS_CLUSTER }}
 
       - name: Create IAM policy for alb
+        id: createiamalb
         run: |
             cd alb/alb
             curl -o iam_policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.4.3/docs/install/iam_policy.json
             aws iam create-policy \
             --policy-name AWSLoadBalancerControllerIAMPolicy \
             --policy-document file://iam_policy.json
+     
       - name: IAM OIDC provider for the cluster
         run: aws eks describe-cluster --name devOps-cluster --query "cluster.identity.oidc" --output text | awk -F/ '{ print $5 }'  > oidc.txt
 
@@ -79,6 +81,12 @@ jobs:
           --set serviceAccount.name=aws-load-balancer-controller\
           --set region=${{ env.AWS_REGION }}
           --set vpcId= $(aws eks describe-cluster --name devOps-cluster --query "cluster.resourcesVpcConfig.vpcId" --output text)
+     
       - name: List thw aws loadbalancer
         run: |
          kubectl get deployment -n kube-system aws-load-balancer-controller
+         
+      - name: Cleanup on failure
+        if: failure()
+        run: |
+          aws iam delete-policy --policy-arn arn:aws:iam::${{ secrets.AWS_ACCESSKEYID }}:policy/AWSLoadBalancerControllerIAMPolicy

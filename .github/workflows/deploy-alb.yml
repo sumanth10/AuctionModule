@@ -59,6 +59,7 @@ jobs:
             cat 
       - name: Create IAM role and attach
         run: |
+            cd alb/alb
             aws iam create-role \
             --role-name AmazonEKSLoadBalancerControllerRole \
             --assume-role-policy-document file://"load-balancer-role-trust-policy.json"
@@ -68,6 +69,7 @@ jobs:
             
       - name: Create service account
         run: |
+          cd alb/alb
           sed -i  s/'{{accountID}}'/${{ env.AWS_ACCESSKEYID }}/g ./aws-load-balancer-controller-service-account.yaml
           kubectl apply -f aws-load-balancer-controller-service-account.yaml
       

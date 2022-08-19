@@ -67,7 +67,7 @@ jobs:
             
       - name: Create service account
         run: |
-          sed -i -e 's/{{accountID}}/${{ env.AWS_ACCESSKEYID }}/g' ./aws-load-balancer-controller-service-account.yaml
+          sed -i  s/'{{accountID}}'/${{ env.AWS_ACCESSKEYID }}/g ./aws-load-balancer-controller-service-account.yaml
           kubectl apply -f aws-load-balancer-controller-service-account.yaml
       
       - name: Create AWS loadbalancer

@@ -1,0 +1,90 @@
+name: Configure application loadbalancer
+
+on:
+ workflow_dispatch: 
+ 
+env:
+ AWS_CLUSTER: devOps-cluster
+ AWS_REGION: eu-central-1
+ AWS_REGION_CODE: 602401143452
+   
+jobs:
+  start:
+    name: ✅ Start provisioning container insights
+    runs-on: ubuntu-latest
+    continue-on-error: false  
+
+    steps:
+      
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+        with:
+            ref: feature/alb
+            path: alb
+      
+      - name: Change directory to alb
+        run: |
+              cd alb/alb
+              ls -ltr
+     
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESSKEYID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region:  ${{ env.AWS_REGION }}
+
+      - name: Configure kube config to run kubectl commands
+        run: aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.AWS_CLUSTER }}
+
+      - name: Create IAM policy for alb
+        run: |
+            cd alb/alb
+            curl -o iam_policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.4.3/docs/install/iam_policy.json
+            aws iam create-policy \
+            --policy-name AWSLoadBalancerControllerIAMPolicy \
+            --policy-document file://iam_policy.json
+
+
+      - name: IAM OIDC provider for the cluster
+        run: aws eks describe-cluster --name devOps-cluster --query "cluster.identity.oidc" --output text | awk -F/ '{ print $5 }'  > oidc.txt
+
+      - name: Update the poilcy file and create IAM role
+        run: |
+            cd alb/alb
+            sed -i -e 's/{{region-code}}/${{ env.AWS_REGION }}/g' ./load-balancer-role-trust-policy.json
+            sed -i -e 's/{{accountID}}/${{ secrets.AWS_ACCESSKEYID }}/g' ./load-balancer-role-trust-policy.json
+            sed -i -e 's/{{oidc}}/r oidc.txt' ./load-balancer-role-trust-policy.json
+            cat 
+
+
+      - name: Create IAM role and attach
+        run: |
+            aws iam create-role \
+            --role-name AmazonEKSLoadBalancerControllerRole \
+            --assume-role-policy-document file://"load-balancer-role-trust-policy.json"
+            aws iam attach-role-policy \
+            --policy-arn arn:aws:iam::${{ secrets.AWS_ACCESSKEYID }}:policy/AWSLoadBalancerControllerIAMPolicy \
+            --role-name AmazonEKSLoadBalancerControllerRole
+            
+      - name: Create service account
+        run: |
+          sed -i -e 's/{{accountID}}/${{ env.AWS_ACCESSKEYID }}/g' ./aws-load-balancer-controller-service-account.yaml
+          kubectl apply -f aws-load-balancer-controller-service-account.yaml
+      
+      - name: Create AWS loadbalancer
+        run: |
+          helm repo add eks https://aws.github.io/eks-charts
+          helm repo update
+          helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
+          -n kube-system \
+          --set clusterName=${{ env.AWS_CLUSTER }} \
+          --set serviceAccount.create=false \
+          --set serviceAccount.name=aws-load-balancer-controller\
+          --set region=${{ env.AWS_REGION }}
+          --set vpcId= $(aws eks describe-cluster --name devOps-cluster --query "cluster.resourcesVpcConfig.vpcId" --output text)
+
+      - name: List thw aws loadbalancer
+        run: |
+         kubectl get deployment -n kube-system aws-load-balancer-controller
+

@@ -142,7 +142,7 @@ jobs:
           cd deployment/helloworld/deployments
           sed -i s/'{{namespace}}'/${{ env.NAMESPACE }}/g ./service.yaml
           sed -i s/'{{app_name}}'/${{ env.APP_NAME }}/g ./service.yaml
-          sed -i s/'{{service_name}}'/${{ env.APP_NAME }}-service/g ./deployment.yaml
+          sed -i s/'{{service_name}}'/${{ env.APP_NAME }}-service/g ./service.yaml
           kubectl apply -f ./service.yaml
 
       # Ingress file can be kept outside of this app and can be in comman deployment file

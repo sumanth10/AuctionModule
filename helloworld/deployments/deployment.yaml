@@ -10,13 +10,6 @@ spec:
   replicas: 5
   strategy:
     type: Rolling
-  rollingParams:
-    updatePeriodSeconds: 1 
-    intervalSeconds: 1 
-    timeoutSeconds: 120 
-    maxSurge: "10%" 
-    maxUnavailable: "20%"  # Adding this to take into account the resource quote and can maintain some level of unavailability
-
   template:
     metadata:
       labels:
@@ -35,15 +28,19 @@ spec:
              cpu: "500m"
         ports:
         - containerPort: 80
-      readinessProbe:
-        httpGet:
-          path: /readiness
-          port: 80
-        initialDelaySeconds: 300
-        periodSeconds: 30
-      livenessProbe:
-        httpGet:
-            path: /liveness
+        readinessProbe:
+          httpGet:
+            path: /readiness
             port: 80
-        initialDelaySeconds: 300
-        periodSeconds: 30
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          timeoutSeconds: 1
+          failureThreshold: 10
+        livenessProbe:
+          httpGet:
+              path: /liveness
+              port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          failureThreshold: 24
+          timeoutSeconds: 1

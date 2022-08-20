@@ -27,7 +27,7 @@ jobs:
     - name: Checkout Master Repo
       uses: actions/checkout@v2
       with:
-        ref: master
+        ref: feature/kubedeployment
         path: app
 
     - name: Cache node modules

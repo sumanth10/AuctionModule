@@ -21,7 +21,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x, 14.x]
+        node-version: [16.x]
 
     steps:
     - name: Checkout Master Repo
@@ -45,10 +45,15 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
+        
+    - name: Change directory to deployment
+      run: |
+            cd app/helloworld
+            ls -ltr
     
     - name: Install Dependenicies
       run: |
-        cd /app/helloworld
+        cd app/helloworld
         npm ci
     
     - name: npm Build

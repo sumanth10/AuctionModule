@@ -1,10 +1,13 @@
 name: HelloWorld.CI 
 
+# on:
+#   push:
+#     branches: [master]
+#   # pull_request:
+#   #   branches: [master]
+
 on:
-  push:
-    branches: [master]
-  # pull_request:
-  #   branches: [master]
+ workflow_dispatch: 
 
 env:
  AWS_CLUSTER: devOps-cluster
@@ -25,7 +28,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         ref: master
-        path: helloworld
+        path: app
 
     - name: Cache node modules
       uses: actions/cache@v2
@@ -44,7 +47,9 @@ jobs:
         node-version: ${{ matrix.node-version }}
     
     - name: Install Dependenicies
-      run: npm ci
+      run: |
+        cd /app/helloworld
+        npm ci
     
     - name: npm Build
       run: npm run build --if-present
@@ -73,7 +78,7 @@ jobs:
         REPOSITORY: ${{ secrets.AWS_REPO }}
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        cd helloworld/helloworld/deployment
+        cd /app/helloworld/deployment
         docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
         docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
       

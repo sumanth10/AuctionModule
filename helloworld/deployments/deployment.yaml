@@ -9,7 +9,7 @@ spec:
       app.kubernetes.io/name: '{{app_name}}'
   replicas: 5
   strategy:
-    type: Rolling
+    type: RollingUpdate
   template:
     metadata:
       labels:
@@ -21,11 +21,11 @@ spec:
         name: '{{app_name}}'
         resources:
            limits:
-             memory: "64Mi"
-             cpu: "250m"
-           requests:
              memory: "128Mi"
              cpu: "500m"
+           requests:
+             memory: "64Mi"
+             cpu: "250m"
         ports:
         - containerPort: 80
         readinessProbe:

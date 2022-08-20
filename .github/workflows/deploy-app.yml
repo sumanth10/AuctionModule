@@ -13,6 +13,7 @@ env:
  AWS_CLUSTER: devOps-cluster
  AWS_REGION: eu-central-1
  NAMESPACE: devops-challenge
+ APP_NAME: devopsapp
 
 jobs:
   build:
@@ -127,17 +128,17 @@ jobs:
         run: |
           cd deployment/helloworld/deployments
           sed -i s/'{{namespace}}'/${{ env.NAMESPACE }}/g ./deployment.yaml
-          sed -i s/'{{app_name}}'/${{ env.app_name }}/g ./deployment.yaml
-          sed -i s/'{{image_name}}'/${{ secrets.AWS_REPO }}:${{ github.sha }}/g ./deployment.yaml
-          sed -i s/'{{deployment_name}}'/${{ env.app_name }}-deployment/g ./deployment.yaml
+          sed -i s/'{{app_name}}'/${{ env.APP_NAME }}/g ./deployment.yaml
+          sed -i s/'{{image_name}}'/${{ jobs.build.steps.login-ecr.outputs.registry }}//${{ secrets.AWS_REPO }}:${{ github.sha }}/g ./deployment.yaml
+          sed -i s/'{{deployment_name}}'/${{ env.APP_NAME }}-deployment/g ./deployment.yaml
           kubectl apply -f ./deployment.yaml
 
       - name: Update the service file and create service for the app
         run: |
           cd deployment/helloworld/deployments
           sed -i s/'{{namespace}}'/${{ env.NAMESPACE }}/g ./service.yaml
-          sed -i s/'{{app_name}}'/${{ env.app_name }}/g ./service.yaml
-          sed -i s/'{{service_name}}'/${{ env.app_name }}-service/g ./deployment.yaml
+          sed -i s/'{{app_name}}'/${{ env.APP_NAME }}/g ./service.yaml
+          sed -i s/'{{service_name}}'/${{ env.APP_NAME }}-service/g ./deployment.yaml
           kubectl apply -f ./service.yaml
 
       # Ingress file can be kept outside of this app and can be in comman deployment file

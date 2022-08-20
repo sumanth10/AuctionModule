@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: '{{namespace}}'
+  name: '{{deployment_name}}'
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: '{{app_name}}'
+  replicas: 5
+  strategy:
+    type: Rolling
+  rollingParams:
+    updatePeriodSeconds: 1 
+    intervalSeconds: 1 
+    timeoutSeconds: 120 
+    maxSurge: "10%" 
+    maxUnavailable: "20%"  # Adding this to take into account the resource quote and can maintain some level of unavailability
+
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: '{{app_name}}'
+    spec:
+      containers:
+      - image: '{{image_name}}'
+        imagePullPolicy: Always
+        name: '{{app_name}}'
+        resources:
+           limits:
+             memory: "64Mi"
+             cpu: "250m"
+           requests:
+             memory: "128Mi"
+             cpu: "500m"
+        ports:
+        - containerPort: 80
+      readinessProbe:
+        httpGet:
+          path: /readiness
+          port: 80
+        initialDelaySeconds: 300
+        periodSeconds: 30
+      livenessProbe:
+        httpGet:
+            path: /liveness
+            port: 80
+        initialDelaySeconds: 300
+        periodSeconds: 30

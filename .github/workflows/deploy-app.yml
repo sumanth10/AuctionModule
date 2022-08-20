@@ -57,7 +57,9 @@ jobs:
         npm ci
     
     - name: npm Build
-      run: npm run build --if-present
+      run: |
+        cd app/helloworld
+        npm run build --if-present
     
     # - name: npm Test
     #   run: npm run test

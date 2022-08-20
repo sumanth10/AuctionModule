@@ -151,6 +151,7 @@ jobs:
           cd deployment/helloworld/deployments
           sed -i s/'{{namespace}}'/${{ env.NAMESPACE }}/g ./ingress.yaml
           sed -i s/'{{ingress_name}}'/${{ env.NAMESPACE }}-ingress/g ./ingress.yaml
+          sed -i s/'{{service_name}}'/${{ env.APP_NAME }}-service/g ./ingress.yaml
           kubectl apply -f ./ingress.yaml
           
   setalaram:

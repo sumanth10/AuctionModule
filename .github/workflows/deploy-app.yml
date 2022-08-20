@@ -95,7 +95,7 @@ jobs:
 
   deploy:
     name: 📦 Deploy to EKS
-    needs: [build]
+    needs: build
     runs-on: ubuntu-latest
     
     steps:
@@ -131,7 +131,7 @@ jobs:
           cd deployment/helloworld/deployments
           sed -i s/'{{namespace}}'/${{ env.NAMESPACE }}/g ./deployment.yaml
           sed -i s/'{{app_name}}'/${{ env.APP_NAME }}/g ./deployment.yaml
-          sed -i s/'{{image_name}}'/${{needs.build.outputs.registry}}//${{ secrets.AWS_REPO }}:${{ github.sha }}/g ./deployment.yaml
+          sed -i s|'{{image_name}}'|${{needs.build.outputs.registry}}/${{ secrets.AWS_REPO }}:${{ github.sha }}|g ./deployment.yaml
           sed -i s/'{{deployment_name}}'/${{ env.APP_NAME }}-deployment/g ./deployment.yaml
           kubectl apply -f ./deployment.yaml
 

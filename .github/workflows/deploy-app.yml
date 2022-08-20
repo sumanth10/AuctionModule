@@ -85,7 +85,7 @@ jobs:
         REPOSITORY: ${{ secrets.AWS_REPO }}
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        cd /app/helloworld/deployment
+        cd app/helloworld/deployment
         docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
         docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
       

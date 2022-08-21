@@ -40,6 +40,13 @@ variable "email" {
   default = "sumanthkulkarni10@gmail.com"
 }
 
+variable "httpendpoint" {
+  description = "Http endpoint to send notifications to"
+  type = string
+  default = "http://example.com"
+}
+
+
 variable "tags" {
   description = "Map of tags"
   type        = map(string)

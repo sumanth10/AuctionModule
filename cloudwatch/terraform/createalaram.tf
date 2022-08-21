@@ -12,6 +12,16 @@ resource "aws_sns_topic_subscription" "eks_pod_memory_subscription" {
   ]
 }
 
+resource "aws_sns_topic_subscription" "eks_pod_memory_subscription_http" {
+  topic_arn = aws_sns_topic.eks_pod_memory_topic.arn
+  protocol  = "http"
+  endpoint  = "${var.httpendpoint}"
+
+  depends_on = [
+    aws_sns_topic.eks_pod_memory_topic
+  ]
+}
+
 
 resource "aws_cloudwatch_metric_alarm" "eks_pod_memory_detection" {
   alarm_name          = "EKS_Pod_Memory_Detection"

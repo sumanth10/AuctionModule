@@ -213,7 +213,6 @@ jobs:
                 cd cloudwatch/cloudwatch/terraform
                 terraform apply -auto-approve \
                 -var="pod_name=${{ env.APP_NAME }}-deployment"\
-                -var="namespace=${{ env.NAMESPACE }}"
             working-directory: '${{ github.workspace }}'
 
           - name: List kubernetes resources

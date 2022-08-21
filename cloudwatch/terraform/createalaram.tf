@@ -27,5 +27,6 @@ resource "aws_cloudwatch_metric_alarm" "eks_pod_memory_detection" {
   dimensions = {
     ClusterName = "${var.project}-cluster"
     PodName = "${var.pod_name}"
+    Namespace = "${var.namespace}"
   }
 }

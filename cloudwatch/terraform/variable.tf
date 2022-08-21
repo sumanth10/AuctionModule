@@ -22,7 +22,11 @@ variable "pod_name" {
   default     = "hellowworld"
 }
 
-
+variable "namespace" {
+  description = "The namespace in which your pod resides"
+  type        = string
+  default     = "devops-challenge"
+}
 
 variable "project" {
   description = "Name to be used on all the resources as identifier. e.g. Project name, Application name"

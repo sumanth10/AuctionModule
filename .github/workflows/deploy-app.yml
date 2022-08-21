@@ -168,7 +168,7 @@ jobs:
 
           - name: Change directory to deployment
             run: |
-                cd deployment/cloudwatch/terraform
+                cd cloudwatch/cloudwatch/terraform
                 ls -ltr
       
           - name: Configure AWS Credentials
@@ -190,31 +190,31 @@ jobs:
           - name: Terraform Init
             id: init
             run: |
-                cd deployment/cloudwatch/terraform
+                cd cloudwatch/cloudwatch/terraform
                 terraform init
             working-directory: ${{ github.workspace }}
       
           - name: Terraform Validate
             id: validate
             run: |
-                cd deployment/cloudwatch/terraform
+                cd cloudwatch/cloudwatch/terraform
                 terraform validate -no-color
           
           - name: Terraform Plan
             id: plan
             run: |
-                cd deployment/cloudwatch/terraform
+                cd cloudwatch/cloudwatch/terraform
                 terraform plan -no-color
             working-directory: ${{ github.workspace }} 
           
           
           - name: Terraform Apply
             run: |
-                cd deployment/cloudwatch/terraform
+                cd cloudwatch/cloudwatch/terraform
                 terraform apply -auto-approve -var='pod_name=${{ env.app_name }}-deployment,aws_access_key=${{ secrets.AWS_ACCESSKEYID }},aws_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}'
             working-directory: '${{ github.workspace }}'
 
           - name: List kubernetes resources
             run: |
                kubectl get deployment -n ${{ env.NAMESPACE }}
-               kubectl get ingress/${{ env.NAMESPACE }}-ingress -n game-2048
+               kubectl get ingress/${{ env.NAMESPACE }}-ingress -n ${{ env.NAMESPACE }}
